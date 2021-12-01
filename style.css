@@ -6,6 +6,9 @@
 
 body {
   background: linear-gradient(to top left, rgba(0, 87, 101, 1) 0%, rgba(0, 245, 255, 1) 100%);
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -109,19 +112,19 @@ body {
 /* Responsive design */
 @media screen and (max-width: 500px) {
   .container {
-    width: 90vw;
+    max-width: 90vw;
   }
 }
 
-/* @media screen and (max-height: 650px) {
+@media screen and (max-height: 650px) {
   .container {
-    height: 90vh;
+    max-height: 90vh;
   }
 }
 
 @media screen and (max-height: 600px) {
   .numbers,
   .operators {
-    height: 350px;
+    max-height: 350px;
   }
-} */
+}
