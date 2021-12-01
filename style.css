@@ -113,7 +113,7 @@ body {
   }
 }
 
-@media screen and (max-height: 650px) {
+/* @media screen and (max-height: 650px) {
   .container {
     height: 90vh;
   }
@@ -124,4 +124,4 @@ body {
   .operators {
     height: 350px;
   }
-}
+} */
