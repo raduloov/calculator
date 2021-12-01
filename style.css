@@ -107,19 +107,19 @@ body {
 }
 
 /* Responsive design */
-@media (max-width: 500px) {
+@media screen and (max-width: 500px) {
   .container {
     width: 90vw;
   }
 }
 
-@media (max-height: 650px) {
+@media screen and (max-height: 650px) {
   .container {
     height: 90vh;
   }
 }
 
-@media (max-height: 600px) {
+@media screen and (max-height: 600px) {
   .numbers,
   .operators {
     height: 350px;
