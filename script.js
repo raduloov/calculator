@@ -146,5 +146,5 @@ function displayGlow() {
   displayBox.classList.add('glow');
   setTimeout(() => {
     displayBox.classList.remove('glow');
-  }, 100);
+  }, 150);
 }
