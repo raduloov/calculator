@@ -6,33 +6,45 @@ const resultBtn = document.getElementById('equals');
 let calculator = {
   problem: '',
   operand: false,
+  number: false,
   result: false,
 };
 
 // Event listeners
 numbersBtns.forEach(button => {
   button.addEventListener('click', () => {
-    if (calculator.operand) {
-      clearForNew(button);
-      if (calculator.result) {
-        calculator.problem = '';
-      }
-    }
-    if (!calculator.operand) {
+    // false false false
+    if (!calculator.operand && !calculator.number && !calculator.result) {
       updateDisplay(button);
     }
-    if (calculator.operand && calculator.result) {
+    // false true false
+    if (!calculator.operand && calculator.number && !calculator.result) {
+      updateDisplay(button);
+    }
+    // true false false
+    if (calculator.operand && !calculator.number && !calculator.result) {
+      clearDisplay(button);
+    }
+    // false true true
+    if (!calculator.operand && calculator.number && calculator.result) {
+      clearProblem();
+      clearDisplay(button);
+
       calculator.result = false;
     }
 
-    addDigit(button);
+    calculator.operand = false;
+    calculator.number = true;
     console.log(calculator);
+
+    addDigit(button);
+    displayGlow();
   });
 });
 
 operatorBtns.forEach(button => {
   button.addEventListener('click', () => {
-    if (calculator.operand && button.id !== 'delete') calculate(calculator.problem);
+    if (!calculator.operand && button.id !== 'delete') calculate(calculator.problem);
 
     switch (button.id) {
       case 'delete':
@@ -52,13 +64,19 @@ operatorBtns.forEach(button => {
         break;
     }
 
+    if (button.id !== 'delete') calculator.operand = true;
+    calculator.number = false;
+    calculator.result = false;
     console.log(calculator);
+    displayGlow();
   });
 });
 
 resultBtn.addEventListener('click', () => {
-  calculate(calculator.problem);
   calculator.result = true;
+  calculate(calculator.problem);
+  displayGlow();
+  console.log(calculator);
 });
 
 // Functions
@@ -66,41 +84,37 @@ function updateDisplay(button) {
   display.textContent += button.textContent;
 }
 
-function clearForNew(button) {
+function clearDisplay(button) {
   display.textContent = button.textContent;
 }
 
 function addDigit(button) {
-  if (button.classList.contains('number')) {
-    calculator.problem += button.textContent;
-  } else {
-    addOperand(button.id);
-  }
+  calculator.problem += button.textContent;
+}
+
+function clearProblem() {
+  calculator.problem = '';
 }
 
 function deleteNumbers() {
   display.textContent = '';
   calculator.problem = '';
   calculator.operand = false;
+  calculator.number = false;
   calculator.result = false;
 }
 
-// Operands
 function divide() {
   calculator.problem += '/';
-  calculator.operand = true;
 }
 function times() {
   calculator.problem += '*';
-  calculator.operand = true;
 }
 function minus() {
   calculator.problem += '-';
-  calculator.operand = true;
 }
 function plus() {
   calculator.problem += '+';
-  calculator.operand = true;
 }
 
 function calculate(problem) {
@@ -120,10 +134,17 @@ function calculate(problem) {
     display.textContent = 0;
     calculator.problem = '';
   }
-
-  console.log(calculator);
 }
 
 function isFloat(n) {
   return n === +n && n !== (n | 0);
+}
+
+function displayGlow() {
+  const displayBox = document.querySelector('.display');
+
+  displayBox.classList.add('glow');
+  setTimeout(() => {
+    displayBox.classList.remove('glow');
+  }, 100);
 }
