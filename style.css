@@ -62,13 +62,36 @@ body {
 .display {
   border-bottom: 3px solid rgb(180, 180, 180);
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   font-size: 3.5rem;
   font-weight: bold;
   color: black;
   overflow: hidden;
   transition: all ease 0.1s;
+}
+
+.display > div {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+#display {
+  padding-bottom: 10px;
+}
+
+#operand {
+  color: rgb(114, 114, 114);
+}
+
+#problem {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  color: rgb(114, 114, 114);
+  font-size: 1.2rem;
+  height: 30px;
 }
 
 .btn {

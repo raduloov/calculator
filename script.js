@@ -1,4 +1,6 @@
 const display = document.getElementById('display');
+const operand = document.getElementById('operand');
+const problemEl = document.getElementById('problem');
 const numbersBtns = document.querySelectorAll('.number');
 const operatorBtns = document.querySelectorAll('.operator');
 const resultBtn = document.getElementById('equals');
@@ -13,6 +15,28 @@ let calculator = {
 // Event listeners
 numbersBtns.forEach(button => {
   button.addEventListener('click', () => {
+    // Limitations for the use of decimal point
+    if (button.id === 'dec-point') {
+      let lastNumber;
+      if (calculator.problem === '.') {
+        return;
+      }
+      if (/[\+\-\*\/]/.test(calculator.problem)) {
+        lastNumber = calculator.problem.match(/([\-\+\*\/])(\d+\.+|\d+)/);
+      } else {
+        lastNumber = calculator.problem.match(/([\-\d\.][\d\.]+)/);
+      }
+      if (calculator.operand) {
+        lastNumber = calculator.problem.match(/([\-\d\.][\d\.]+)/);
+      }
+
+      if (lastNumber !== null && lastNumber !== undefined) {
+        if (lastNumber[0].includes('.')) {
+          return;
+        }
+      }
+    }
+
     // false false false
     if (!calculator.operand && !calculator.number && !calculator.result) {
       updateDisplay(button);
@@ -32,13 +56,20 @@ numbersBtns.forEach(button => {
 
       calculator.result = false;
     }
+    // true false true
+    if (calculator.operand && !calculator.number && calculator.result) {
+      clearProblem();
+      clearDisplay(button);
+    }
 
     calculator.operand = false;
     calculator.number = true;
-    console.log(calculator);
+    calculator.result = false;
 
     addDigit(button);
     displayGlow();
+    updateProblem(calculator.problem);
+    console.log(calculator);
   });
 });
 
@@ -56,18 +87,25 @@ operatorBtns.forEach(button => {
       case 'times':
         times();
         break;
-      case 'minus':
-        minus();
-        break;
       case 'plus':
         plus();
         break;
+      case 'minus':
+        if (calculator.operand) {
+          minus();
+          clearDisplay(button);
+        } else {
+          minus();
+        }
+        break;
     }
 
-    if (button.id !== 'delete') calculator.operand = true;
+    if (button.id !== 'delete') displayOperand(button);
+    if (button.id !== 'delete' && button.id !== 'minus') calculator.operand = true;
     calculator.number = false;
     calculator.result = false;
     console.log(calculator);
+
     displayGlow();
   });
 });
@@ -76,6 +114,7 @@ resultBtn.addEventListener('click', () => {
   calculator.result = true;
   calculate(calculator.problem);
   displayGlow();
+  displayOperand(resultBtn);
   console.log(calculator);
 });
 
@@ -97,42 +136,109 @@ function clearProblem() {
 }
 
 function deleteNumbers() {
-  display.textContent = '';
   calculator.problem = '';
+  display.textContent = '';
+  problemEl.textContent = '';
+  operand.textContent = '';
   calculator.operand = false;
   calculator.number = false;
   calculator.result = false;
 }
 
 function divide() {
+  if (calculator.problem === undefined || calculator.problem === '') {
+    calculator.problem = '';
+    return;
+  }
+
+  // If "times" is pressed after "divide"
+  if (calculator.problem[calculator.problem.length - 1] === '*') {
+    calculator.problem = calculator.problem.replace('*', '');
+  }
+
   calculator.problem += '/';
 }
 function times() {
+  if (calculator.problem === undefined || calculator.problem === '') {
+    calculator.problem = '';
+    return;
+  }
+
+  // If "divide" is pressed after "times"
+  if (calculator.problem[calculator.problem.length - 1] === '/') {
+    calculator.problem = calculator.problem.replace('/', '');
+  }
+
   calculator.problem += '*';
 }
-function minus() {
-  calculator.problem += '-';
-}
 function plus() {
+  if (calculator.problem === undefined || calculator.problem === '') {
+    calculator.problem = '';
+    return;
+  }
   calculator.problem += '+';
+}
+function minus() {
+  // If minus is used to make the number negative
+  if (calculator.problem === undefined) {
+    calculator.problem = '-';
+    display.textContent = '-';
+  } else if (calculator.operand) {
+    calculator.problem += '-';
+    calculator.operand = false;
+  } else if (!calculator.operand) {
+    calculator.problem += '-';
+    calculator.operand = true;
+  }
+}
+
+function updateProblem(problem) {
+  problemEl.textContent = problem;
+}
+
+function displayOperand(button) {
+  operand.textContent = button.textContent;
 }
 
 function calculate(problem) {
-  let solution = eval(problem);
+  // If two "minus" are after one another, add parenthesies
+  if (/(-{2})/.test(problem)) {
+    problem = problem.split('');
+    problem.splice(problem.indexOf('-') + 1, 0, '(');
+    problem.splice(problem.length, 0, ')');
+    problem = problem.join('');
+  }
 
-  if (solution !== Infinity) {
+  let solution;
+
+  // If eval() doesn't work, catch the error and fix solution
+  try {
+    solution = eval(problem);
+  } catch (err) {
+    solution = problem.slice(0, problem.search(/[\+\-\*\/]+/));
+  }
+
+  // If number is divided by 0, display 0
+  if (solution === Infinity || solution === -Infinity) {
+    display.textContent = 0;
+    calculator.problem = '';
+  } else {
+    // If solution is float fix the number to a max of 4 numbers after decimal point
     if (isFloat(solution)) {
       const length = solution.toString().slice(solution.toString().indexOf('.') + 1).length;
       console.log(length);
-      length <= 4
-        ? (solution = solution.toFixed(length).replace('.', ','))
-        : (solution = solution.toFixed(4).replace('.', ','));
+      length <= 4 ? (solution = solution.toFixed(length)) : (solution = solution.toFixed(4));
+
+      // If solution has 0s at the end, remove them
+      for (let i = length - 1; i >= 0; i--) {
+        if (solution[i] == 0) {
+          solution.split('').splice(i, 1).join('');
+        }
+      }
     }
+
     display.textContent = solution;
     calculator.problem = solution;
-  } else {
-    display.textContent = 0;
-    calculator.problem = '';
   }
 }
 
