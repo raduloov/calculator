@@ -6,7 +6,7 @@
 
 body {
   background: linear-gradient(to top left, rgba(0, 87, 101, 1) 0%, rgba(0, 245, 255, 1) 100%);
-  background-position: center;
+  background-position: center center;
   background-repeat: no-repeat;
   background-size: cover;
   display: flex;
